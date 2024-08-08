@@ -1,0 +1,8 @@
+streamlit==1.22.0
+pandas==1.5.3
+numpy==1.24.3
+streamlit-echarts==0.4.0
+plotly==5.14.1
+streamlit-extras==0.2.7
+streamlit-lottie==0.0.3
+requests==2.29.0
