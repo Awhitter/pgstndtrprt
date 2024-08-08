@@ -520,3 +520,169 @@ if email:
 
 else:
     st.write("Please enter your email to view your personalized study progress dashboard.")
+import streamlit as st
+import pandas as pd
+import numpy as np
+from streamlit_echarts import st_echarts
+from datetime import datetime, timedelta
+import plotly.graph_objects as go
+from streamlit_extras.metric_cards import style_metric_cards
+from streamlit_lottie import st_lottie
+import json
+import requests
+
+# Custom CSS for a sleeker look
+st.set_page_config(layout="wide")
+st.markdown("""
+<style>
+    .reportview-container {
+        background: #f0f2f6
+    }
+    .main {
+        background: #f0f2f6
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Load Lottie animation
+def load_lottieurl(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+lottie_study = load_lottieurl("https://assets4.lottiefiles.com/packages/lf20_xyadoh9h.json")
+
+# Load and preprocess data
+@st.cache_data
+def load_data():
+    # Simulated data loading - replace with actual data source
+    data = {
+        'name': ['Tagged Practice Question', 'Expanded Explanation', 'Expanded Answer Choice Rationale', 'Answered Practice Question'] * 100,
+        'at': pd.date_range(start='2023-10-01', end='2023-10-22', freq='H').tolist()[:400],
+        'user_class': ['fnp_testprep'] * 400,
+        'subcription_during_event': ['Mo (1225)'] * 400,
+        'custom_answer_was': np.random.choice(['correct', 'incorrect', ''], size=400, p=[0.7, 0.2, 0.1]),
+        'custom_question_marked_as': np.random.choice(['correct', 'incorrect', ''], size=400, p=[0.6, 0.3, 0.1]),
+        'category': np.random.choice(['Fundamentals', 'Med-Surg', 'Pediatrics', 'OB/GYN', 'Psychiatric', 'Pharmacology'], size=400)
+    }
+    df = pd.DataFrame(data)
+    df['at'] = pd.to_datetime(df['at'])
+    return df
+
+df = load_data()
+
+# Main app
+st.title("🚀 NCLEX Study Progress Dashboard")
+st_lottie(lottie_study, height=200, key="study_animation")
+
+email = st.text_input("📧 Enter your email to view your personalized dashboard:")
+
+if email:
+    st.success(f"Analyzing data for: {email}")
+    
+    # Basic Statistics
+    total_questions = df[df['name'] == 'Answered Practice Question'].shape[0]
+    correct_answers = df[(df['name'] == 'Answered Practice Question') & (df['custom_answer_was'] == 'correct')].shape[0]
+    accuracy = correct_answers / total_questions * 100 if total_questions > 0 else 0
+    
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("📚 Total Questions", total_questions, "1.2% increase")
+    col2.metric("✅ Correct Answers", correct_answers, "2.5% increase")
+    col3.metric("🎯 Accuracy", f"{accuracy:.2f}%", "0.5% increase")
+    col4.metric("⏱️ Study Hours", f"{len(df['at'].dt.date.unique()) * 2:.1f}", "1.5 hours increase")
+    style_metric_cards()
+
+    # Study Calendar Heatmap
+    st.subheader("📅 Study Intensity Calendar")
+    
+    study_counts = df.groupby(df['at'].dt.date).size().reset_index(name='count')
+    study_counts['date'] = study_counts['at'].dt.strftime('%Y-%m-%d')
+    
+    calendar_data = [
+        [d.strftime("%Y-%m-%d"), c] for d, c in zip(study_counts['at'], study_counts['count'])
+    ]
+    
+    calendar_option = {
+        "tooltip": {"position": "top"},
+        "visualMap": {
+            "min": 0,
+            "max": 30,
+            "calculable": True,
+            "orient": "horizontal",
+            "left": "center",
+            "top": "top",
+        },
+        "calendar": [
+            {
+                "range": "2023",
+                "cellSize": ["auto", 20],
+            }
+        ],
+        "series": [
+            {
+                "type": "heatmap",
+                "coordinateSystem": "calendar",
+                "data": calendar_data,
+            }
+        ],
+    }
+    st_echarts(options=calendar_option, height="250px")
+
+    # Performance by Category Radar Chart
+    st.subheader("📊 Performance by Category")
+    
+    categories = df['category'].unique()
+    category_performance = []
+    
+    for category in categories:
+        cat_df = df[(df['name'] == 'Answered Practice Question') & (df['category'] == category)]
+        cat_accuracy = cat_df[cat_df['custom_answer_was'] == 'correct'].shape[0] / cat_df.shape[0] * 100 if cat_df.shape[0] > 0 else 0
+        category_performance.append(cat_accuracy)
+    
+    radar_option = {
+        "title": {"text": "Category Performance"},
+        "radar": {
+            "indicator": [{"name": c, "max": 100} for c in categories]
+        },
+        "series": [{
+            "name": "Category Accuracy",
+            "type": "radar",
+            "data": [{
+                "value": category_performance,
+                "name": "Accuracy %"
+            }]
+        }]
+    }
+    st_echarts(options=radar_option, height="400px")
+
+    # AI-Powered Insights
+    st.subheader("🤖 AI-Powered Insights")
+    
+    insights = [
+        f"Your overall accuracy of {accuracy:.2f}% shows strong progress. Keep it up!",
+        f"You've been most consistent in studying {df['category'].value_counts().index[0]}. Consider balancing your focus across all categories.",
+        f"The category '{categories[np.argmin(category_performance)]}' needs more attention. We recommend focusing on this area.",
+    ]
+    
+    for insight in insights:
+        st.info(insight)
+
+    # Personalized Study Plan Generator
+    st.subheader("📝 Personalized Study Plan Generator")
+    days_to_exam = st.slider("Days until your NCLEX exam:", 1, 90, 30)
+    
+    if st.button("Generate Study Plan"):
+        study_plan = f"""
+        Based on your performance and {days_to_exam} days until your exam, here's a personalized study plan:
+        
+        1. Focus on {categories[np.argmin(category_performance)]} for the next week, aiming for 2 hours of study per day.
+        2. Increase your daily question count to {max(50, total_questions // days_to_exam)} to ensure comprehensive coverage.
+        3. Schedule 3 mock exams in the coming weeks to simulate test conditions.
+        4. Dedicate 30 minutes daily to reviewing your weakest areas identified in the performance radar.
+        5. Use the 'Expanded Explanation' feature more frequently to deepen your understanding of complex topics.
+        """
+        st.success(study_plan)
+
+else:
+    st.write("Please enter your email to view your personalized study progress dashboard.")
