@@ -13,7 +13,7 @@ import random
 from plotly.subplots import make_subplots
 
 # Custom CSS and page config
-st.set_page_config(layout="wide", page_title="FNP TestPrep Study Progress Dashboard")
+st.set_page_config(layout="wide", page_title="Study Progress Dashboard")
 st.markdown("""
 <style>
     .reportview-container {background-color: #1E1E1E;}
@@ -78,7 +78,7 @@ lottie_study = load_lottieurl("https://assets4.lottiefiles.com/packages/lf20_xya
 
 # Generate sample data for demonstration
 def generate_sample_data(num_users=20, days=180):
-    categories = ['Diagnosis', 'Treatment', 'Pharmacology', 'Patient Education', 'Ethics', 'Health Promotion', 'Research', 'Legal Issues', 'Cultural Competence', 'Leadership']
+    categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6', 'Category 7', 'Category 8', 'Category 9', 'Category 10']
     users = [f'user{i}@example.com' for i in range(1, num_users+1)]
     
     data = []
@@ -143,7 +143,7 @@ def get_badge_description(badge):
     return descriptions.get(badge, "You've earned this achievement!")
 
 # Main app
-st.title("🚀 FNP TestPrep Study Progress Dashboard")
+st.title("🚀 Study Progress Dashboard")
 st.markdown("<div class='custom-lottie'>", unsafe_allow_html=True)
 st_lottie(lottie_study, height=200, key="study_animation")
 st.markdown("</div>", unsafe_allow_html=True)
@@ -211,11 +211,11 @@ if user_email:
     col4.metric("⏱️ Study Hours", f"{study_hours:.1f}")
     style_metric_cards()
 
-    # Exam Readiness Progress Bar
-    st.subheader("📊 Exam Readiness")
-    readiness = min(accuracy, 100)  # Cap at 100%
-    st.progress(readiness / 100)
-    st.write(f"You are approximately {readiness:.1f}% ready for the FNP exam based on your current performance.")
+    # Progress Bar
+    st.subheader("📊 Overall Progress")
+    progress = min(accuracy, 100)  # Cap at 100%
+    st.progress(progress / 100)
+    st.write(f"You have completed {progress:.1f}% of your study material based on your current performance.")
 
     # Study Calendar Heatmap
     st.subheader("📅 Study Intensity Calendar")
