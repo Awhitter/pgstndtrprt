@@ -119,15 +119,32 @@ def load_data():
     try:
         conn = sqlite3.connect('user_data.db')
         df = pd.read_sql_query("SELECT * FROM user_events", conn)
-        df['event_date'] = pd.to_datetime(df['event_date'])
         badges_df = pd.read_sql_query("SELECT * FROM user_badges", conn)
         conn.close()
         
-        # Ensure 'time_spent' column exists
-        if 'time_spent' not in df.columns:
-            df['time_spent'] = np.random.randint(30, 300, size=len(df))  # Generate random time spent if not present
-    except sqlite3.OperationalError:
-        st.warning("Database not found. Using sample data for demonstration.")
+        # Check if required columns exist
+        required_columns = ['email', 'event_date', 'question_category', 'result', 'time_spent']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        
+        if missing_columns:
+            st.error(f"Missing columns in the database: {', '.join(missing_columns)}")
+            st.error("Using sample data instead.")
+            df, badges_df = generate_sample_data()
+        else:
+            df['event_date'] = pd.to_datetime(df['event_date'])
+            
+            # Ensure 'time_spent' column exists and is numeric
+            if 'time_spent' not in df.columns or not pd.api.types.is_numeric_dtype(df['time_spent']):
+                st.warning("'time_spent' column is missing or not numeric. Generating random values.")
+                df['time_spent'] = np.random.randint(30, 300, size=len(df))
+        
+    except sqlite3.OperationalError as e:
+        st.error(f"Error accessing the database: {str(e)}")
+        st.warning("Using sample data for demonstration.")
+        df, badges_df = generate_sample_data()
+    except Exception as e:
+        st.error(f"An unexpected error occurred: {str(e)}")
+        st.warning("Using sample data for demonstration.")
         df, badges_df = generate_sample_data()
     
     return df, badges_df
