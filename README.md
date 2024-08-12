@@ -1,6 +1,6 @@
-# FNP TestPrep Study Progress Dashboard
+# Study Progress Dashboard
 
-This interactive dashboard provides a comprehensive view of your FNP (Family Nurse Practitioner) exam preparation progress. It visualizes your study habits, performance across different categories, and offers AI-powered insights to help you optimize your study strategy.
+This interactive dashboard provides a comprehensive view of your study progress for various exams. It visualizes your study habits, performance across different categories, and offers AI-powered insights to help you optimize your study strategy.
 
 ## Features
 
@@ -16,8 +16,8 @@ This interactive dashboard provides a comprehensive view of your FNP (Family Nur
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/fnp-testprep-dashboard.git
-   cd fnp-testprep-dashboard
+   git clone https://github.com/yourusername/study-progress-dashboard.git
+   cd study-progress-dashboard
    ```
 
 2. Create a virtual environment (optional but recommended):
@@ -35,7 +35,7 @@ This interactive dashboard provides a comprehensive view of your FNP (Family Nur
 
 1. Run the Streamlit app:
    ```
-   streamlit run nclex_dashboard.py
+   streamlit run dashboard.py
    ```
 
 2. Open your web browser and go to `http://localhost:8501` to view the dashboard.
@@ -51,7 +51,7 @@ The dashboard currently uses sample data for demonstration purposes. To use real
 
 ## Customization
 
-You can modify the `nclex_dashboard.py` file to add new features, change the layout, or integrate with a different data source.
+You can modify the `dashboard.py` file to add new features, change the layout, or integrate with a different data source. The dashboard is designed to be flexible and can be adapted for various types of exams and study materials.
 
 ## Contributing
 
