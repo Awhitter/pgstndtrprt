@@ -122,6 +122,10 @@ def load_data():
         df['event_date'] = pd.to_datetime(df['event_date'])
         badges_df = pd.read_sql_query("SELECT * FROM user_badges", conn)
         conn.close()
+        
+        # Ensure 'time_spent' column exists
+        if 'time_spent' not in df.columns:
+            df['time_spent'] = np.random.randint(30, 300, size=len(df))  # Generate random time spent if not present
     except sqlite3.OperationalError:
         st.warning("Database not found. Using sample data for demonstration.")
         df, badges_df = generate_sample_data()
