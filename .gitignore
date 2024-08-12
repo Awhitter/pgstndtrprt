@@ -1,2 +1,5 @@
-.aider*
+*.pyc
+__pycache__/
+*.db
 venv/
+.env
