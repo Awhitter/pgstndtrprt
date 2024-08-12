@@ -10,6 +10,7 @@ from streamlit_lottie import st_lottie
 import requests
 from datetime import datetime, timedelta
 import random
+from plotly.subplots import make_subplots
 
 # Custom CSS and page config
 st.set_page_config(layout="wide", page_title="FNP TestPrep Study Progress Dashboard")
@@ -128,6 +129,18 @@ def load_data():
     return df, badges_df
 
 df, badges_df = load_data()
+
+def get_badge_description(badge):
+    descriptions = {
+        'quick_learner': "You're picking up new concepts rapidly!",
+        'consistent_studier': "You've maintained a regular study schedule.",
+        'perfect_score': "You've achieved a perfect score in at least one category!",
+        'study_marathon': "You've completed an extended study session.",
+        'night_owl': "You're productive during late-night study sessions.",
+        'early_bird': "You excel at early morning studying.",
+        'weekend_warrior': "You make great use of your weekends for studying."
+    }
+    return descriptions.get(badge, "You've earned this achievement!")
 
 # Main app
 st.title("🚀 FNP TestPrep Study Progress Dashboard")
@@ -386,18 +399,3 @@ if user_email:
 
 else:
     st.write("Please select your email to view your personalized study progress dashboard.")
-
-def get_badge_description(badge):
-    descriptions = {
-        'quick_learner': "You're picking up new concepts rapidly!",
-        'consistent_studier': "You've maintained a regular study schedule.",
-        'perfect_score': "You've achieved a perfect score in at least one category!",
-        'study_marathon': "You've completed an extended study session.",
-        'night_owl': "You're productive during late-night study sessions.",
-        'early_bird': "You excel at early morning studying.",
-        'weekend_warrior': "You make great use of your weekends for studying."
-    }
-    return descriptions.get(badge, "You've earned this achievement!")
-
-# Add this import at the top of the file
-from plotly.subplots import make_subplots
